@@ -36,14 +36,19 @@ jobs:
     # 5. Run mlflow project
     - name: Run mlflow project
       run: |
+        export MLFLOW_TRACKING_URI="MLProject/mlruns"
         mlflow run MLProject --env-manager local
 
     # 6. Get latest MLflow run_id
     - name: Get latest MLflow run_id
       id: get_run_id
       run: |
-        # Menggunakan taktik Linux murni (OS-level) untuk bypass proteksi FileStore MLflow
-        RUN_ID=$(ls -t MLProject/mlruns/0 | grep -v "meta.yaml" | head -n 1)
+        sleep 2
+        RUN_ID=$(ls -t MLProject/mlruns/0 | grep -E '^[a-f0-9]{32}$' | head -n 1)
+        if [ -z "$RUN_ID" ]; then
+          echo "[ERROR] Run ID kosong!"
+          exit 1
+        fi
         echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
         echo "[INFO] Sukses Mengamankan Run ID Aktual: $RUN_ID"
 
