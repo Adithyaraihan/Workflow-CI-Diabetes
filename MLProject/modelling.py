@@ -6,7 +6,6 @@ import mlflow
 import mlflow.sklearn
 
 def main():
-    mlflow.set_experiment("Diabetes_CI_Automated")
     
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     data_path = os.path.join(BASE_DIR, "diabetes_clean_manual.csv")
