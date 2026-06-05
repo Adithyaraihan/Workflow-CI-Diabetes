@@ -33,8 +33,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install mlflow scikit-learn pandas
 
-    # 5. Run mlflow project
+   # 5. Run mlflow project (Diberikan izin eksplisit env di level step)
     - name: Run mlflow project
+      env:
+        MLFLOW_ALLOW_FILE_STORE: "true"
       run: |
         export MLFLOW_TRACKING_URI="MLProject/mlruns"
         mlflow run MLProject --env-manager local
@@ -44,14 +46,14 @@ jobs:
       id: get_run_id
       run: |
         sleep 2
+        # Mengambil folder run ID hexadecimal asli yang dibuat di bawah MLProject/mlruns
         RUN_ID=$(ls -t MLProject/mlruns/0 | grep -E '^[a-f0-9]{32}$' | head -n 1)
         if [ -z "$RUN_ID" ]; then
-          echo "[ERROR] Run ID kosong!"
+          echo "[ERROR] Robot gagal menemukan folder Run ID di MLProject/mlruns/0!"
           exit 1
         fi
         echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
         echo "[INFO] Sukses Mengamankan Run ID Aktual: $RUN_ID"
-
     # 7. Install Python dependencies
     - name: Install Python dependencies
       run: |
