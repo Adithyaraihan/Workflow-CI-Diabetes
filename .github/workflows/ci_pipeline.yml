@@ -1,0 +1,42 @@
+name: Workflow-CI Automation (Target Advance)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build-and-push-docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      # Install MLflow di runner untuk menggunakan fungsi build-docker
+      - name: Install MLflow & Dependencies
+        run: |
+          pip install mlflow scikit-learn pandas
+
+      # Login ke Docker Hub secara aman menggunakan Secrets GitHub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      # Perintah Sakti MLflow untuk otomatis bikin Docker Image dari Model tanpa bikin Dockerfile manual
+      - name: Build Docker Image via MLflow
+        run: |
+          mlflow models build-docker -m "MLProject/model" -n "${{ secrets.DOCKER_HUB_USERNAME }}/diabetes-predictor:latest" --enable-mlserver
+
+      # Dorong Docker Image yang sudah jadi ke Docker Hub Cloud
+      - name: Push Docker Image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/diabetes-predictor:latest

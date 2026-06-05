@@ -1,0 +1,1 @@
+https://hub.docker.com/r/username_dockerhub_kamu/diabetes-predictor
