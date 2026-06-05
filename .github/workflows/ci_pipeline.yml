@@ -59,7 +59,7 @@ jobs:
       # 9. Build Docker Model
       - name: Build Docker Model
         run: |
-          mlflow models build-docker -m "mlruns/0/${{ env.RUN_ID }}/artifacts/model" -n "${{ secrets.DOCKER_HUB_USERNAME }}/diabetes-predictor" --enable-mlserver
+          mlflow models build-docker -m "mlruns/0/${{ env.RUN_ID }}/artifacts/model" -n "${{ secrets.DOCKER_HUB_USERNAME }}/diabetes-predictor"
 
       # 10. Log in to Docker Hub
       - name: Log in to Docker Hub
