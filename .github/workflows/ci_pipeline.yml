@@ -41,12 +41,11 @@ jobs:
     # 6. Get latest MLflow run_id (Diberikan bypass izin file store)
     - name: Get latest MLflow run_id
       id: get_run_id
-      env:
-        MLFLOW_ALLOW_FILE_STORE: "true"
       run: |
-        RUN_ID=$(python -c "import mlflow; client = mlflow.tracking.MlflowClient(tracking_uri='MLProject/mlruns'); runs = client.search_runs(experiment_ids=['0']); print(runs[0].info.run_id) if runs else print('0')")
+        # Menggunakan perintah Linux murni untuk mengambil nama folder run ID terbaru (berdasarkan waktu modifikasi terupdate)
+        RUN_ID=$(ls -t MLProject/mlruns/0 | grep -v "meta.yaml" | head -n 1)
         echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
-        echo "[INFO] Berhasil mendapatkan ID tracking terbaru: $RUN_ID"
+        echo "[INFO] Berhasil mengamankan Run ID murni via Linux: $RUN_ID"
 
     # 7. Install Python dependencies (Wajib muncul lagi sesuai log gambar)
     - name: Install Python dependencies
@@ -58,12 +57,13 @@ jobs:
         echo "[CI-LOG] Mengalihkan penyimpanan artefak sepenuhnya ke GitHub Actions Workspace..."
         echo "[CI-LOG] Model terkompresi dicadangkan secara internal di server runner."
 
-    # 9. Build Docker Model (Diberikan bypass izin file store)
+   # 9. Build Docker Model
     - name: Build Docker Model
       env:
         MLFLOW_ALLOW_FILE_STORE: "true"
-      run: |
-        mlflow models build-docker -m "MLProject/mlruns/0/${{ env.RUN_ID }}/artifacts/model" -n "${{ secrets.DOCKER_HUB_USERNAME }}/diabetes-predictor:latest"
+        run: |
+          # Sekarang path dijamin mengarah ke hex ID asli, bukan angka '0' lagi
+          mlflow models build-docker -m "MLProject/mlruns/0/${{ env.RUN_ID }}/artifacts/model" -n "${{ secrets.DOCKER_HUB_USERNAME }}/diabetes-predictor:latest"
 
     # 10. Log in to Docker Hub
     - name: Log in to Docker Hub
