@@ -41,11 +41,9 @@ jobs:
   # 6. Get latest MLflow run_id
       - name: Get latest MLflow run_id
         id: get_run_id
-         run: |
-        # Diarahkan ke MLProject/mlruns karena lokasi running-nya di dalam folder tersebut
-        RUN_ID=$(python -c "import mlflow; client = mlflow.tracking.MlflowClient(tracking_uri='MLProject/mlruns'); runs = client.search_runs(experiment_ids=['0']); print(runs[0].info.run_id) if runs else print('0')")
-        echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
-        echo "Latest MLflow Run ID: $RUN_ID"
+        run: |
+          RUN_ID=$(python -c "import mlflow; client = mlflow.tracking.MlflowClient(tracking_uri='MLProject/mlruns'); runs = client.search_runs(experiment_ids=['0']); print(runs[0].info.run_id) if runs else print('0')")
+          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
 
       # 7. Install Python dependencies (Wajib muncul lagi sesuai log gambar)
       - name: Install Python dependencies
