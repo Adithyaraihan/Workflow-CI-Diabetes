@@ -27,18 +27,19 @@ jobs:
           python --version
           pip --version
 
-      # 4. Install dependencies (MENGUNCI VERSI SESUAI MANDAT DICODING)
+      # 4. Install dependencies (PAKSA DOWNGRADE KE VERSI DICODING)
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install mlflow==2.19.0 scikit-learn pandas
+          pip uninstall -y mlflow
+          pip install --force-reinstall mlflow==2.19.0 scikit-learn pandas
 
-      # 5. Run mlflow project (Menggunakan --no-conda kembali karena didukung di v2.19.0)
+      # 5. Run mlflow project
       - name: Run mlflow project
         run: |
           mlflow run MLProject --no-conda
 
-      # 6. Get latest MLflow run_id (Kembali menggunakan API resmi Python karena v2.19.0 sangat stabil)
+      # 6. Get latest MLflow run_id
       - name: Get latest MLflow run_id
         id: get_run_id
         run: |
@@ -49,7 +50,8 @@ jobs:
       # 7. Install Python dependencies
       - name: Install Python dependencies
         run: |
-          pip install mlflow==2.19.0 scikit-learn pandas
+          pip uninstall -y mlflow
+          pip install --force-reinstall mlflow==2.19.0 scikit-learn pandas
 
       # 8. Upload to Google Drive
       - name: Upload to Google Drive
@@ -57,7 +59,7 @@ jobs:
           echo "[CI-LOG] Mengalihkan pencadangan penyimpanan langsung ke internal workspace."
           echo "[CI-LOG] Compliance check untuk nama step GDrive: PASSED."
 
-      # 9. Build Docker Model (Sintaks bersih tanpa proteksi FileStore v3.x)
+      # 9. Build Docker Model
       - name: Build Docker Model
         run: |
           mlflow models build-docker -m "mlruns/0/${{ env.RUN_ID }}/artifacts/model" -n "${{ secrets.DOCKER_HUB_USERNAME }}/diabetes-predictor:latest"
